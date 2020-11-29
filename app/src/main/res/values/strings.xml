@@ -4,4 +4,13 @@
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam efficitur ipsum in placerat molestie.  Fusce quis mauris a enim sollicitudin
         \n\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam efficitur ipsum in placerat molestie.  Fusce quis mauris a enim sollicitudin
     </string>
+    <string name="page_title">Home Devcies</string>
+    <string name="action_delete">Delete Item</string>
+    <string name="action_settings">Settings</string>
+    <string name="snackbar_delete">Message Deleted</string>
+    <string name="forward_dialog_title">Forward Message</string>
+    <string name="to">To:</string>
+    <string name="name">Name:</string>
+    <string name="text">Text:</string>
+    <string name="send_button">Send</string>
 </resources>

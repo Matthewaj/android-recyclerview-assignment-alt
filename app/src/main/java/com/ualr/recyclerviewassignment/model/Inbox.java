@@ -1,6 +1,11 @@
-package com.ualr.recyclerviewassignment.model;;
+package com.ualr.recyclerviewassignment.model;
 
-public class Inbox {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+;
+
+public class Inbox implements Parcelable {
     private String from;
     private String email;
     private String message;
@@ -10,6 +15,26 @@ public class Inbox {
     public Inbox() {
         this.selected = false;
     }
+
+    protected Inbox(Parcel in) {
+        from = in.readString();
+        email = in.readString();
+        message = in.readString();
+        date = in.readString();
+        selected = in.readByte() != 0;
+    }
+
+    public static final Creator<Inbox> CREATOR = new Creator<Inbox>() {
+        @Override
+        public Inbox createFromParcel(Parcel in) {
+            return new Inbox(in);
+        }
+
+        @Override
+        public Inbox[] newArray(int size) {
+            return new Inbox[size];
+        }
+    };
 
     public String getFrom() {
         return from;
@@ -53,5 +78,19 @@ public class Inbox {
 
     public void toggleSelection() {
         this.selected = !this.selected;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(this.from);
+        parcel.writeString(this.email);
+        parcel.writeString(this.message);
+        parcel.writeString(this.date);
+        parcel.writeByte((byte) (isSelected() ? 1 : 0));
     }
 }

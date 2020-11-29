@@ -1,29 +1,21 @@
 package com.ualr.recyclerviewassignment;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ualr.recyclerviewassignment.model.Inbox;
-
-import java.util.List;
-import java.util.Optional;
+import com.ualr.recyclerviewassignment.model.InboxViewModel;
 
 public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.InboxViewHolder> {
-    private final Context context;
-    private final List<Inbox> inboxList;
-    private int lastChecked;
+    private final InboxViewModel inboxViewModel;
 
-    public InboxAdapter(Context context, List<Inbox> inboxList) {
-        this.inboxList = inboxList;
-        this.context = context;
-        this.lastChecked = -1;
+    public InboxAdapter(InboxViewModel inboxViewModel) {
+        this.inboxViewModel = inboxViewModel;
     }
 
     @NonNull
@@ -34,7 +26,21 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.InboxViewHol
 
         itemView.setOnClickListener((View view) -> {
             int position = ((RecyclerView) view.getParent()).getChildAdapterPosition(view);
-            inboxList.get(position).toggleSelection();
+            Inbox clickedInbox = inboxViewModel.getInboxes().getValue().get(position);
+            clickedInbox.toggleSelection();
+
+
+            Integer selectedInbox = inboxViewModel.getSelectedInboxIndex();
+
+            if (selectedInbox != -1 && selectedInbox != position) {
+                inboxViewModel.getInboxes().getValue().get(selectedInbox).toggleSelection();
+                notifyItemChanged(selectedInbox);
+                inboxViewModel.setSelectedInbox(position);
+            } else if (selectedInbox == position) {
+                inboxViewModel.deselectInbox();
+            } else {
+                inboxViewModel.setSelectedInbox(position);
+            }
 
             notifyItemChanged(position);
         });
@@ -42,32 +48,31 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.InboxViewHol
         return new InboxViewHolder(itemView);
     }
 
+    public void removeSelectedItem() {
+        Integer selectedInbox = inboxViewModel.removeSelectedInbox();
+        notifyItemRemoved(selectedInbox);
+    }
+
     @Override
     public void onBindViewHolder(@NonNull InboxViewHolder holder, int position) {
-        Inbox inbox = inboxList.get(position);
+        Inbox inbox = inboxViewModel.getInboxes().getValue().get(position);
 
         holder.from.setText(inbox.getFrom());
         holder.date.setText(inbox.getDate());
         holder.email.setText(inbox.getEmail());
         holder.message.setText(inbox.getMessage());
         holder.thumbnail.setText(
-                inbox.isSelected() ? "×" : String.valueOf(inbox.getFrom().charAt(0)));
+                inbox.isSelected() ? "✓" : String.valueOf(inbox.getFrom().charAt(0)));
         holder.thumbnail.setEnabled(inbox.isSelected());
         holder.layout.setSelected(inbox.isSelected());
     }
 
-    public void addIndex(Inbox inbox) {
-        inboxList.add(0, inbox);
-        notifyDataSetChanged();
-
-    }
-
     @Override
     public int getItemCount() {
-        return inboxList.size();
+        return inboxViewModel.getInboxes().getValue().size();
     }
 
-    public class InboxViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class InboxViewHolder extends RecyclerView.ViewHolder {
         private final TextView thumbnail;
         private final TextView from;
         private final TextView email;
@@ -83,16 +88,6 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.InboxViewHol
             message = itemView.findViewById(R.id.message);
             date = itemView.findViewById(R.id.date);
             layout = itemView.findViewById(R.id.layout);
-
-            thumbnail.setOnClickListener(this);
-        }
-
-        @Override
-        public void onClick(View view) {
-            int position = getBindingAdapterPosition();
-
-            inboxList.remove(position);
-            notifyItemRemoved(position);
         }
     }
 }
